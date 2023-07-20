@@ -55,8 +55,8 @@ function createProduct(req, res) {
         console.log(`error: ${JSON.stringify(err)}`)
         return res.status(500).json({ message: err })
     } else {
-        console.log(`file: ${JSON.stringify(req.file)}`)
-        console.log(`body: ${JSON.stringify(req.body)}`)
+        // console.log(`file: ${JSON.stringify(req.file)}`)
+        // console.log(`body: ${JSON.stringify(req.body)}`)
         try {
           const { name, description, barcode, stock, price, category_id, user_id, status_id } = req.body
           const image = req.file ? req.file.filename : null
@@ -114,10 +114,19 @@ function updateProduct(req, res) {
         try {
           const { name, description, barcode, stock, price, category_id, user_id, status_id } = req.body
           const image = req.file ? req.file.filename : null
-          console.log(req.file)
+          // console.log(req.file)
+
+          let sql = "UPDATE products SET name = ?, description = ?, barcode = ?, stock = ?, price = ?, category_id = ?, user_id = ?, status_id = ? WHERE id = ?"
+          let params = [name, description, barcode, stock, price, category_id, user_id, status_id, req.params.productId]
+
+          if (image) {
+            sql = "UPDATE products SET name = ?, description = ?, barcode = ?, image = ?, stock = ?, price = ?, category_id = ?, user_id = ?, status_id = ? WHERE id = ?"
+            params = [name, description, barcode, image, stock, price, category_id, user_id, status_id, req.params.productId]
+          }
+
           connection.execute(
-            "UPDATE products SET name = ?, description = ?, barcode = ?, image = ?, stock = ?, price = ?, category_id = ?, user_id = ?, status_id = ? WHERE id = ?",
-            [name, description, barcode, image, stock, price, category_id, user_id, status_id, req.params.productId],
+            sql,
+            params,
             function (err, results, fields) {
               if (err) {
                 res.json({ status: "error", message: err })
